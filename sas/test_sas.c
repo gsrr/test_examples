@@ -11,6 +11,7 @@
 #include <scsi/sg.h> /* take care: fetches glibc's /usr/include/scsi/sg.h */
 
 #include "test_sas.h"
+void test_vpd_page_b2(char *dev, char *cmd_str);
 
 unsigned short get_cmd_len(char *cmd_str)
 {
@@ -46,12 +47,7 @@ void cmd_str_to_buf(char *cmd_str, unsigned char *cmd)
     for(i = 0 ; i < strlen(cmd_str) ; i += 3)
     {
         cmd[i/3] = (chex_to_int(cmd_str[i]) << 4) + chex_to_int(cmd_str[i + 1]);
-        printf("%d:%c%c ", cmd[i/3],cmd_str[i], cmd_str[i + 1]);
     }
-}
-
-void fill_scsi_header(sg_io_hdr_t *io_hdr, char *cmd_str, unsigned char *sense_buffer)
-{
 }
 
 int _send_scsi_command(char *dev, unsigned short cmd_len,unsigned char *cmd, unsigned short buf_len, unsigned char *buf)
@@ -139,8 +135,6 @@ unsigned char* send_scsi_command(char *dev, char *cmd_str, void *data, void(*par
     unsigned char *cmd;
     unsigned char *buf;
 
-    printf("%s\n", dev);
-    
     cmd_len = get_cmd_len(cmd_str);
     cmd = malloc(cmd_len);
     cmd_str_to_buf(cmd_str, cmd);
@@ -148,18 +142,16 @@ unsigned char* send_scsi_command(char *dev, char *cmd_str, void *data, void(*par
     buf_len = get_buf_len(cmd);
     buf = malloc(buf_len);
     
-    printf("cmd_len:%u, cmd_op:%u, buf_len:%u\n", cmd_len, cmd[0], buf_len);
     ret = _send_scsi_command(dev, cmd_len, cmd, buf_len, buf);
     
     parsefunc(buf, data);
-    dump_buf(buf);
+    //dump_buf(buf);
     free(cmd);
     free(buf);
     return buf;
 }
 
 
-#ifdef UNIT_TEST
 void test_vpd_page_00(char *dev, char *cmd_str)
 {
     struct scsi_12_01_00 data;
@@ -187,6 +179,7 @@ void test_vpd_page_b2(char *dev, char *cmd_str)
     printf("\n");
 }
 
+#ifdef UNIT_TEST
 int main(int argc, char * argv[])
 {
     if (argc <= 2) {
