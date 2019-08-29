@@ -145,7 +145,7 @@ unsigned char* send_scsi_command(char *dev, char *cmd_str, void *data, void(*par
     ret = _send_scsi_command(dev, cmd_len, cmd, buf_len, buf);
     
     parsefunc(buf, data);
-    //dump_buf(buf);
+    dump_buf(buf);
     free(cmd);
     free(buf);
     return buf;
@@ -188,8 +188,8 @@ int main(int argc, char * argv[])
     }
     
     //send_scsi_command(argv[1], "12,00,00,00,60,00");
-    //test_vpd_page_00(argv[1], argv[2]);
-    test_vpd_page_b2(argv[1], argv[2]);
+    test_vpd_page_00(argv[1], argv[2]);
+    //test_vpd_page_b2(argv[1], argv[2]);
     return 0;
 }
 #endif
