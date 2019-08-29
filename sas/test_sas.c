@@ -23,11 +23,20 @@ unsigned short buf_len_12h(unsigned char *cmd)
     return (cmd[3] << 8) + cmd[4];
 }
 
-unsigned short get_buf_len(char *cmd)
+unsigned short buf_len_a1h(unsigned char *cmd)
+{
+    return 512 * cmd[4];
+}
+
+unsigned short get_buf_len(unsigned char *cmd)
 {
     if(cmd[0] == 0x12)
     {
         return buf_len_12h(cmd);
+    }
+    if(cmd[0] == 0xa1)
+    {
+        return buf_len_a1h(cmd);
     }
     return 0;
 }
@@ -81,6 +90,13 @@ int _send_scsi_command(char *dev, unsigned short cmd_len,unsigned char *cmd, uns
     
     if ((io_hdr.info & SG_INFO_OK_MASK) != SG_INFO_OK) 
     {
+        printf("SG info is not ok\n");
+        int i;
+        for(i = 0 ; i < 32 ; i++)
+        {
+            printf("%02x ", sense_buffer[i]);
+        }
+        printf("\n");
         ret = -1;
         goto send_exit;
     }
@@ -94,7 +110,7 @@ send_exit:
 void dump_buf(unsigned char *buf)
 {
     int i;
-    for(i = 0 ; i < 0x60 ; i++)
+    for(i = 0 ; i < 0x100 ; i++)
     {
         printf("%02x ", buf[i]);
     }
@@ -127,7 +143,12 @@ void parsebuf_12h_01h_b2h(unsigned char *buf, void *data)
     vpd->lbpr = (buf[5] >> 2) & 1;
 }
 
-unsigned char* send_scsi_command(char *dev, char *cmd_str, void *data, void(*parsefunc)(unsigned char*, void*))
+void parsebuf_a1h(unsigned char *buf, void *data)
+{
+    dump_buf(buf);
+}
+
+int send_scsi_command(char *dev, char *cmd_str, void *data, void(*parsefunc)(unsigned char*, void*))
 {
     int ret = 0;
     unsigned short int cmd_len;
@@ -141,17 +162,26 @@ unsigned char* send_scsi_command(char *dev, char *cmd_str, void *data, void(*par
 
     buf_len = get_buf_len(cmd);
     buf = malloc(buf_len);
+    memset(buf, 0, buf_len);
     
+    int i;
+    for(i = 0 ; i < 12 ; i++)
+    {
+        printf("%x ", cmd[i]);
+    }
+    printf("\n");
+
+    printf("cmd_len : buf_len = (%d, %d)\n", cmd_len, buf_len);
     ret = _send_scsi_command(dev, cmd_len, cmd, buf_len, buf);
-    
+    printf("ret : %d\n", ret); 
     parsefunc(buf, data);
-    dump_buf(buf);
     free(cmd);
     free(buf);
-    return buf;
+    return 0;
 }
 
 
+#ifdef UNIT_TEST
 void test_vpd_page_00(char *dev, char *cmd_str)
 {
     struct scsi_12_01_00 data;
@@ -179,17 +209,22 @@ void test_vpd_page_b2(char *dev, char *cmd_str)
     printf("\n");
 }
 
-#ifdef UNIT_TEST
+void test_ata_passthrough12(char *dev)
+{
+    char *cmd = "a1,08,0e,00,01,30,00,00,00,2f,00,00";
+    //char *cmd = "a1,08,0e,00,01,00,00,00,00,ec,00,00";
+    struct scsi_12_01_b2 data;
+    send_scsi_command(dev, cmd, &data, parsebuf_a1h);
+}
+
 int main(int argc, char * argv[])
 {
-    if (argc <= 2) {
-        printf("Usage: 'sg_simple0 <sg_device>'\n");
-        return 1;
-    }
-    
+    /*
     //send_scsi_command(argv[1], "12,00,00,00,60,00");
     test_vpd_page_00(argv[1], argv[2]);
     //test_vpd_page_b2(argv[1], argv[2]);
+    */
+    test_ata_passthrough12(argv[1]);
     return 0;
 }
 #endif
