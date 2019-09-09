@@ -16,7 +16,7 @@ all : $(SO_OBJECT_FILE)
 	gcc -o main main.c -ldl
 	
 unittest : $(CFILES)
-	gcc -o $(basename $<) $< -DUNIT_TEST
+	gcc -o $(basename $<) $< -DUNIT_TEST -luLinux_hal -luLinux_ini -L.
 
 clean: $(CFILES)
 	rm $(basename $<)

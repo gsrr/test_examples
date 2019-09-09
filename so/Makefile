@@ -7,7 +7,7 @@ $(info OBJECT_FILE = $(OBJECT_FILE))
 $(info SO_OBJECT_FILE = $(SO_OBJECT_FILE)) 
 
 %.so : %.o
-	gcc -shared $< -o $@
+	gcc -shared $< -o $@ 
 
 %.o : %.c
 	gcc -fPIC -c -o $@ $<

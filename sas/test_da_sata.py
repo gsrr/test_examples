@@ -1,9 +1,48 @@
 import os
 import sys
+import traceback
 
+
+def test_temp_17(path, off):
+    data = ""
+    with open(path, "r") as fr:
+        data = fr.read()
+
+    if ord(data[off + 2]) != 0x02:
+        return False
+    return True
+
+def test_temp_18(path, off):
+    data = ""
+    with open(path, "r") as fr:
+        data = fr.read()
+
+    if ord(data[off + 2]) != 0x03:
+        return False
+    
+    return True
+
+def test_temp_19(path, off):
+    data = ""
+    with open(path, "r") as fr:
+        data = fr.read()
+
+    if ord(data[off + 2]) != 0x04:
+        return False
+    
+    return True
 
 def read_data(path, offset, length, tnum):
-    print offset, length, tnum, 
+    try:
+        func = getattr(sys.modules[__name__], "test_temp_%d"%tnum)
+        if func(path, offset) == False:
+            print "Fail", offset, length, tnum
+        else:
+            print "Successful", "offset=%d, length=%d, template=%d"%(offset, length, tnum)
+    except:
+        #print traceback.format_exc()
+        pass
+    '''
     data = ""
     with open(path, "r") as fr:
         data = fr.read()
@@ -28,6 +67,7 @@ def read_data(path, offset, length, tnum):
 
     if tnum == 334:
         print length,  8 + ord(data[offset + 4])
+    '''
 
 def read_sas_header(path):
     recs = []

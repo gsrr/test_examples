@@ -1,0 +1,39 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <dlfcn.h>
+
+
+int main(int argc, char** argv)
+{
+    void *handle1;
+    void *handle2;
+    void (*func)();
+
+    //handle1 = dlopen("libs1.so", RTLD_LAZY);
+    handle2 = dlopen("libs2.so", RTLD_LAZY);
+
+    /*
+    if (!handle1) {
+        fprintf(stderr, "Error: %s\n", dlerror());
+        return EXIT_FAILURE;
+    }
+
+    func = dlsym(handle1, "is_match");
+    if (!func) {
+        fprintf(stderr, "Error: %s\n", dlerror());
+        dlclose(handle1);
+        return EXIT_FAILURE;
+    }
+
+    func();
+*/
+    func = dlsym(handle2, "is_match");
+    func();
+    
+    while(1)
+    {
+        sleep(1);
+    }
+    return EXIT_SUCCESS;
+}
