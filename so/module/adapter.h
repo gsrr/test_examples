@@ -1,0 +1,5 @@
+#define MAX_LOG_FILE_SIZE (1024 * 512)
+
+#define LOG_ERROR		0x0001
+#define LOG_WARNING	0x0002
+#define LOG_INFO		0x0004
