@@ -1,0 +1,7 @@
+probe kernel.function("ata_scsi_queuecmd") {
+    if ($cmd->device->host->host_no != 1)
+    {
+           printf ("scsi address is %d:%d:%d:%d\n", $cmd->device->host->host_no, $cmd->device->channel, $cmd->device->id, $cmd->device->lun);
+           printf ("cdb length : %d\n", $cmd->cmd_len);
+    }
+}

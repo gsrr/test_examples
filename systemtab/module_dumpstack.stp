@@ -1,0 +1,4 @@
+
+probe module("mv14xx").function("hba_msg_insert") {
+    print_backtrace()
+}

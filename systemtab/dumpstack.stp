@@ -1,0 +1,4 @@
+
+probe kernel.function("sd_remove") {
+    print_backtrace()
+}

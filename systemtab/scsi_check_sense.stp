@@ -1,0 +1,8 @@
+probe kernel.function("scsi_check_sense") {
+           printf ("host number: %d, scmd result:%x\n", $scmd->device->host->host_no, $scmd->result);
+           printf("Get sense buffer:")
+           for (i = 0; i < 32; i++) {
+               printf(" %02X", $scmd->sense_buffer[i]);
+           }
+           printf("\n");
+}

@@ -1,0 +1,6 @@
+global count=0
+ 
+probe kernel.function("vfs_rename") {
+  count++
+  printf ("%s(%d) open\n", execname(), pid())
+}
